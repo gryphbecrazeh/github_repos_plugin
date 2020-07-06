@@ -3,7 +3,7 @@ defined('ABSPATH') or die('Inaccessible');
 /*
 Plugin Name: GitHub Repos
 Plugin URI: http://cordine.site/
-Description:Improved Nav bar placement
+Description:Display Github Repos
 Version:0.0
 Author: Christopher Cordine
 Author URI: https://cordine.site
@@ -60,8 +60,25 @@ if (!class_exists('GH_REPOS_CLASS')) {
             ));
         }
         // Register Front End Assets
+        private function register_frontend_assets()
+        {
+            $frontend_js_obj = array(
+
+                'default_error_message' => __('This field is required', GH_REPOS_TD),
+
+                'ajax_url' => admin_url('admin-ajax.php'),
+
+                'ajax_nonce' => wp_create_nonce('frontend-ajax-nonce'),
+
+                'preview_img' => GH_REPOS_IMG_DIR . '/no-preview.png'
+
+            );
+            wp_localize_script('frontend.js', 'frontend_js_obj', $frontend_js_obj);
+        }
         public function gh_repos_include_scripts()
         {
+            wp_enqueue_script('frontend.js', plugins_url('/js/frontend.js', __FILE__));
+            $this->register_frontend_assets();
         }
         // Database Setup
         public function gh_repos_database_setup()
