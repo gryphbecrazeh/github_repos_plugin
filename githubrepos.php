@@ -86,14 +86,24 @@ if (!class_exists('GH_REPOS_CLASS')) {
         {
         }
         // Shortcodes
-        public function gh_repos_display_repos($atts = [], $content = null, $tag = '')
+        public function gh_repos_display_repos($attributes = [], $content = null, $tag = '')
         {
             require_once(__DIR__ . '/includes/github.php');
             // Convert all attribute keys to lowercase
-            $atts = array_change_key_case((array) $atts, CASE_LOWER);
+            $attributes = array_change_key_case((array) $atts, CASE_LOWER);
+
+            $atts = shortcode_atts(array(
+                'user' => 'default',
+                'sort' => true,
+                'sort_direction' => true,
+                'link_repo' => true
+            ), $attributes);
             // Override default attributes with user attributes
             $user = $atts['user'];
+            $link_repo = $atts['link_repo'];
+            // Innitialize github variable
             $gh;
+
             if ($user) {
                 $gh = new GH_REPOS_GITHUB($atts['user']);
             }
@@ -105,17 +115,26 @@ if (!class_exists('GH_REPOS_CLASS')) {
             <?php
                 ob_clean();
             }
-            // echo $atts['user'];
             ?>
             <ul class="gh_repos_list">
 
                 <?php
                 $repos = $gh->getRepos();
+                if (!$repos) {
+                ?>
+                    <li class='item'>No items found...</li>
+                <?php
+                    ob_flush();
+                    ob_clean();
+                    return 0;
+                }
+                // Reder out all repositories
                 foreach ($repos as $repo) {
                 ?>
                     <!-- <pre><?php echo var_export($repo, true) ?></pre> -->
                     <li class="item">
                         <a href="<?php echo $repo->html_url ?>"><?php echo $repo->name ?></a>
+
                         <!-- <span class="updatedAt"><?php echo $repo->updated_at ?></span> -->
                     </li>
                 <?php
