@@ -25,6 +25,7 @@ defined('GH_REPOS_URL') or define('GH_REPOS_URL', plugin_dir_url(__FILE__));
 defined('GH_REPOS_JS_DIR') or define('GH_REPOS_JS_DIR', plugin_dir_url(__FILE__) . 'js');
 // PLUGIN CSS DIRECTORY
 defined('GH_REPOS_CSS_DIR') or define('GH_REPOS_CSS_DIR', plugin_dir_url(__FILE__) . 'css');
+// 
 
 if (!class_exists('GH_REPOS_CLASS')) {
     class GH_REPOS_CLASS
@@ -85,8 +86,50 @@ if (!class_exists('GH_REPOS_CLASS')) {
         {
         }
         // Shortcodes
-        public function gh_repos_display_repos()
+        public function gh_repos_display_repos($atts = [], $content = null, $tag = '')
         {
+            require_once(__DIR__ . '/includes/github.php');
+            // Convert all attribute keys to lowercase
+            $atts = array_change_key_case((array) $atts, CASE_LOWER);
+            // Override default attributes with user attributes
+            $user = $atts['user'];
+            $gh;
+            if ($user) {
+                $gh = new GH_REPOS_GITHUB($atts['user']);
+            }
+            // Begin output buffering
+            ob_start();
+            if (!$user) {
+?>
+                <div class="err">No Repos Available</div>
+            <?php
+                ob_clean();
+            }
+            // echo $atts['user'];
+            ?>
+            <ul class="gh_repos_list">
+
+                <?php
+                $repos = $gh->getRepos();
+                foreach ($repos as $repo) {
+                ?>
+                    <!-- <pre><?php echo var_export($repo, true) ?></pre> -->
+                    <li class="item">
+                        <a href="<?php echo $repo->html_url ?>"><?php echo $repo->name ?></a>
+                        <!-- <span class="updatedAt"><?php echo $repo->updated_at ?></span> -->
+                    </li>
+                <?php
+                }
+
+                ?>
+
+            </ul>
+
+<?php
+            // Display the output
+            ob_flush();
+            // Clear buffer
+            ob_clean();
         }
     }
     $gh_repos_obj = new GH_REPOS_CLASS();
