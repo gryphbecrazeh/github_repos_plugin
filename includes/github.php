@@ -40,6 +40,5 @@ class GH_REPOS_GITHUB
         $repos = json_decode($results);
         $sortedRepos = usort($repos, 'sort_repos');
         return $repos;
-        // return json_decode($results);
     }
 }

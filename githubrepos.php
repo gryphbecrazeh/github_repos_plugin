@@ -1,4 +1,9 @@
 <?php
+/*
+
+
+
+*/
 defined('ABSPATH') or die('Inaccessible');
 /*
 Plugin Name: GitHub Repos
@@ -25,7 +30,6 @@ defined('GH_REPOS_URL') or define('GH_REPOS_URL', plugin_dir_url(__FILE__));
 defined('GH_REPOS_JS_DIR') or define('GH_REPOS_JS_DIR', plugin_dir_url(__FILE__) . 'js');
 // PLUGIN CSS DIRECTORY
 defined('GH_REPOS_CSS_DIR') or define('GH_REPOS_CSS_DIR', plugin_dir_url(__FILE__) . 'css');
-// 
 
 if (!class_exists('GH_REPOS_CLASS')) {
     class GH_REPOS_CLASS
@@ -49,7 +53,9 @@ if (!class_exists('GH_REPOS_CLASS')) {
             // Add Tables to Database
             register_activation_hook(__FILE__, array($this, 'gh_repos_database_setup'));
         }
+        // 
         // Add to toolbar
+        // 
         public function gh_repos_add_toolbar_items($admin_bar)
         {
             $admin_bar->add_menu(array(
@@ -60,7 +66,9 @@ if (!class_exists('GH_REPOS_CLASS')) {
                 )
             ));
         }
+        // 
         // Register Front End Assets
+        // 
         private function register_frontend_assets()
         {
             $frontend_js_obj = array(
@@ -76,20 +84,29 @@ if (!class_exists('GH_REPOS_CLASS')) {
             );
             wp_localize_script('frontend.js', 'frontend_js_obj', $frontend_js_obj);
         }
+        // 
+        // Include Scripts
+        // 
         public function gh_repos_include_scripts()
         {
             wp_enqueue_script('frontend.js', plugins_url('/js/frontend.js', __FILE__));
             $this->register_frontend_assets();
         }
+        // 
         // Database Setup
+        // 
         public function gh_repos_database_setup()
         {
         }
+        // 
         // Shortcodes
+        // 
         public function gh_repos_display_repos($attributes = [], $content = null, $tag = '')
         {
             require_once(__DIR__ . '/includes/github.php');
+            // 
             // Convert all attribute keys to lowercase
+            // 
             $attributes = array_change_key_case((array) $atts, CASE_LOWER);
 
             $atts = shortcode_atts(array(
@@ -98,43 +115,47 @@ if (!class_exists('GH_REPOS_CLASS')) {
                 'sort_direction' => true,
                 'link_repo' => true
             ), $attributes);
+            // 
             // Override default attributes with user attributes
+            // 
             $user = $atts['user'];
             $link_repo = $atts['link_repo'];
-            // Innitialize github variable
-            $gh;
-
-            if ($user) {
-                $gh = new GH_REPOS_GITHUB($atts['user']);
-            }
+            // 
             // Begin output buffering
+            // 
             ob_start();
-            if (!$user) {
+            // 
+            // Open list element
+            // 
+            $gh = new GH_REPOS_GITHUB($user);
+
 ?>
-                <div class="err">No Repos Available</div>
-            <?php
-                ob_clean();
-            }
-            ?>
             <ul class="gh_repos_list">
 
                 <?php
                 $repos = $gh->getRepos();
+                // 
+                // If there are no results, output no items found, end the loop
+                // 
                 if (!$repos) {
                 ?>
-                    <li class='item'>No items found...</li>
+                    <li class='gh_repos_item'>No items found...</li>
                 <?php
+                    // 
+                    // Display the output and clear the buffer
+                    // 
                     ob_flush();
                     ob_clean();
                     return 0;
                 }
+                // 
                 // Reder out all repositories
+                // 
                 foreach ($repos as $repo) {
                 ?>
                     <!-- <pre><?php echo var_export($repo, true) ?></pre> -->
-                    <li class="item">
+                    <li class="gh_repos_item">
                         <a href="<?php echo $repo->html_url ?>"><?php echo $repo->name ?></a>
-
                         <!-- <span class="updatedAt"><?php echo $repo->updated_at ?></span> -->
                     </li>
                 <?php
@@ -145,9 +166,10 @@ if (!class_exists('GH_REPOS_CLASS')) {
             </ul>
 
 <?php
-            // Display the output
+            // 
+            // Display the output and clear the buffer
+            // 
             ob_flush();
-            // Clear buffer
             ob_clean();
         }
     }
