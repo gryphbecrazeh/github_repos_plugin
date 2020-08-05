@@ -153,10 +153,8 @@ if (!class_exists('GH_REPOS_CLASS')) {
                 // 
                 foreach ($repos as $repo) {
                 ?>
-                    <!-- <pre><?php echo var_export($repo, true) ?></pre> -->
                     <li class="gh_repos_item">
                         <a href="<?php echo $repo->html_url ?>"><?php echo $repo->name ?></a>
-                        <!-- <span class="updatedAt"><?php echo $repo->updated_at ?></span> -->
                     </li>
                 <?php
                 }
